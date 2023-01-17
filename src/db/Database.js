@@ -18,8 +18,14 @@ class Database {
     this.#db = data
       ? JSON.parse(data)
       : {
-          lastId: 0,
-          todos: {},
+          lastId: {
+            users: 0,
+            posts: 0,
+            comments: 0,
+          },
+          users: {},
+          posts: {},
+          comments: {},
         }
 
     return this
