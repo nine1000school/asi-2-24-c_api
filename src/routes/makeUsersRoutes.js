@@ -9,8 +9,8 @@ const makeUsersRoutes = ({ app, db }) => {
 
   // CREATE
   app.post("/users", async (req, res) => {
-    const { email, password } = req.body
-    const user = await createUser({ email, password })
+    const { email } = req.body
+    const user = await createUser({ email })
 
     res.send(user)
   })
@@ -31,6 +31,7 @@ const makeUsersRoutes = ({ app, db }) => {
 
     res.send(user)
   })
+
   // UPDATE patch
   app.patch("/users/:userId", async (req, res) => {
     const { userId } = req.params

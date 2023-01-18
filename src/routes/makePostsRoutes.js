@@ -1,3 +1,4 @@
+import auth from "../middlewares/auth.js"
 import createResource from "../utils/createResource.js"
 import getResourceById from "../utils/getResourceById.js"
 import updateResourceById from "../utils/updateResourceById.js"
@@ -8,9 +9,10 @@ const makePostsRoutes = ({ app, db }) => {
   const updatePostById = updateResourceById(db, "posts")
 
   // CREATE
-  app.post("/posts", async (req, res) => {
-    const { title, content, author } = req.body
-    const post = await createPost({ title, content, author })
+  app.post("/posts", auth(db), async (req, res) => {
+    const { title, content } = req.body
+    const user = req.user
+    const post = await createPost({ title, content, userId: user.id })
 
     res.send(post)
   })
