@@ -1,3 +1,4 @@
+import cors from "cors"
 import express from "express"
 import config from "./src/config.js"
 import Database from "./src/db/Database.js"
@@ -11,6 +12,7 @@ const ctx = { app, db }
 
 await db.load()
 
+app.use(cors())
 app.use(express.json())
 
 makeUsersRoutes(ctx)
