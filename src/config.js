@@ -3,7 +3,10 @@ import "dotenv/config"
 const config = {
   port: process.env.PORT,
   db: {
-    filename: process.env.DB_FILENAME,
+    uri: process.env.DB_URI,
+  },
+  pagination: {
+    limit: 10,
   },
   security: {
     session: {

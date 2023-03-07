@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose"
+import { Schema } from "mongoose"
 
 const PostSchema = new Schema(
   {
@@ -16,8 +16,8 @@ const PostSchema = new Schema(
     user: {
       type: new Schema(
         {
-          _id: {
-            type: mongoose.Types.ObjectId,
+          id: {
+            type: String,
             required: true,
           },
           name: {

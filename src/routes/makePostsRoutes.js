@@ -1,3 +1,4 @@
+import config from "../config.js"
 import PostModel from "../db/models/PostModel.js"
 import auth from "../middlewares/auth.js"
 
@@ -10,68 +11,123 @@ const makePostsRoutes = ({ app }) => {
       title,
       content,
       user: {
-        _id: user._id,
+        id: user._id,
         name: user.name,
       },
     })
 
-    res.send(post)
+    res.send({ result: post })
   })
 
   // READ collection
-  app.get("/posts", (req, res) => {
-    const { author, limit = 2, page = 1 } = req.query
-    const rows = Object.values(db.data.posts)
-    const result = author ? rows.filter((post) => post.author === author) : rows
+  app.get("/posts", async (req, res) => {
+    const { author, limit = config.pagination.limit, page = 1 } = req.query
 
-    res.send(result.slice((page - 1) * limit, page * limit))
+    const posts = await PostModel.find(author ? { "user.id": author } : {})
+      .limit(limit)
+      .skip((page - 1) * limit)
+
+    res.send({ result: posts })
   })
 
   // READ single
-  app.get("/posts/:postId", (req, res) => {
+  app.get("/posts/:postId", async (req, res) => {
     const { postId } = req.params
-    const post = getPostById(postId, res)
 
-    if (!post) {
-      return
+    try {
+      const post = await PostModel.findOne({ _id: postId })
+
+      if (!post) {
+        res.status(404).send({ error: "Not found" })
+
+        return
+      }
+
+      res.send({ result: post })
+    } catch (err) {
+      if (err.name === "CastError") {
+        res.status(422).send({ error: "Invalid argument" })
+
+        return
+      }
+
+      console.error(err)
+
+      res.status(500).send({ error: "Oops. Something went wrong." })
     }
-
-    res.send(post)
   })
+
+  const obj = {
+    x: 123,
+  }
+
+  obj.o = obj
 
   // UPDATE patch
   app.patch("/posts/:postId", auth, async (req, res) => {
-    const { postId } = req.params
-    const { title, content, author } = req.body
-    const updatedPost = await updatePostById(
-      postId,
-      { title, content, author },
-      res
-    )
+    const {
+      user,
+      params: { postId },
+      body: { title, content },
+    } = req
 
-    if (!updatedPost) {
-      return
+    try {
+      const post = await PostModel.findOne({
+        _id: postId,
+        "user.id": user._id,
+      })
+
+      if (!post) {
+        res.status(404).send({ error: "Not found" })
+
+        return
+      }
+
+      post.title = title ?? post.title
+      post.content = content ?? post.content
+      const updatedPost = await post.save()
+
+      res.send({ result: updatedPost })
+    } catch (err) {
+      if (err.name === "CastError") {
+        res.status(422).send({ error: "Invalid argument" })
+
+        return
+      }
+
+      console.error(err)
+
+      res.status(500).send({ error: "Oops. Something went wrong." })
     }
-
-    res.send(updatedPost)
   })
 
   // DELETE
   app.delete("/posts/:postId", auth, async (req, res) => {
     const { postId } = req.params
-    const post = getPostById(postId, res)
 
-    if (!post) {
-      return
+    try {
+      const post = await PostModel.findOne({ _id: postId })
+
+      if (!post) {
+        res.status(404).send({ error: "Not found" })
+
+        return
+      }
+
+      await post.deleteOne()
+
+      res.send({ result: post })
+    } catch (err) {
+      if (err.name === "CastError") {
+        res.status(422).send({ error: "Invalid argument" })
+
+        return
+      }
+
+      console.error(err)
+
+      res.status(500).send({ error: "Oops. Something went wrong." })
     }
-
-    await db.write({
-      posts: {
-        [postId]: undefined,
-      },
-    })
-
-    res.send(post)
   })
 }
 

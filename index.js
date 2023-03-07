@@ -9,7 +9,7 @@ import makeUsersRoutes from "./src/routes/makeUsersRoutes.js"
 const app = express()
 const ctx = { app }
 
-await mongoose.connect("mongodb://localhost:27017/asi-2-24-c_api")
+await mongoose.connect(config.db.uri)
 
 app.use(cors())
 app.use(express.json())
