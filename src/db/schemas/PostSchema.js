@@ -1,5 +1,4 @@
-import { Schema } from "mongoose"
-import UserSchema from "./UserSchema.js"
+import mongoose, { Schema } from "mongoose"
 
 const PostSchema = new Schema(
   {
@@ -15,7 +14,19 @@ const PostSchema = new Schema(
       type: Date,
     },
     user: {
-      type: UserSchema,
+      type: new Schema(
+        {
+          _id: {
+            type: mongoose.Types.ObjectId,
+            required: true,
+          },
+          name: {
+            type: String,
+            required: true,
+          },
+        },
+        { _id: false }
+      ),
       required: true,
     },
   },

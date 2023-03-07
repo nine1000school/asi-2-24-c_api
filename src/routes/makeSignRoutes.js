@@ -28,7 +28,7 @@ const makeSignRoutes = ({ app }) => {
       .sign(
         {
           payload: {
-            userId: user.id,
+            userId: user._id,
           },
         },
         config.security.jwt.secret,

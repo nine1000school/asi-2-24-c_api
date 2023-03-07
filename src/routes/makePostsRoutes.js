@@ -1,18 +1,19 @@
+import PostModel from "../db/models/PostModel.js"
 import auth from "../middlewares/auth.js"
-import createResource from "../utils/createResource.js"
-import getResourceById from "../utils/getResourceById.js"
-import updateResourceById from "../utils/updateResourceById.js"
 
-const makePostsRoutes = ({ app, db }) => {
-  const getPostById = getResourceById(db, "posts")
-  const createPost = createResource(db, "posts")
-  const updatePostById = updateResourceById(db, "posts")
-
+const makePostsRoutes = ({ app }) => {
   // CREATE
-  app.post("/posts", auth(db), async (req, res) => {
+  app.post("/posts", auth, async (req, res) => {
     const { title, content } = req.body
     const user = req.user
-    const post = await createPost({ title, content, userId: user.id })
+    const post = await PostModel.create({
+      title,
+      content,
+      user: {
+        _id: user._id,
+        name: user.name,
+      },
+    })
 
     res.send(post)
   })
@@ -39,7 +40,7 @@ const makePostsRoutes = ({ app, db }) => {
   })
 
   // UPDATE patch
-  app.patch("/posts/:postId", auth(db), async (req, res) => {
+  app.patch("/posts/:postId", auth, async (req, res) => {
     const { postId } = req.params
     const { title, content, author } = req.body
     const updatedPost = await updatePostById(
@@ -56,7 +57,7 @@ const makePostsRoutes = ({ app, db }) => {
   })
 
   // DELETE
-  app.delete("/posts/:postId", auth(db), async (req, res) => {
+  app.delete("/posts/:postId", auth, async (req, res) => {
     const { postId } = req.params
     const post = getPostById(postId, res)
 
