@@ -9,6 +9,10 @@ const config = {
     session: {
       tokenLength: 128,
     },
+    jwt: {
+      secret: process.env.SECURITY_JWT_SECRET,
+      expiresIn: "2 days",
+    },
     password: {
       salt: process.env.SECURITY_PASSWORD_SALT,
       keylen: Number.parseInt(process.env.SECURITY_PASSWORD_KEYLEN, 10),

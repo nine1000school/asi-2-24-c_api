@@ -1,8 +1,10 @@
+import jsonwebtoken from "jsonwebtoken"
+import config from "../config.js"
 import getResourceByField from "../utils/getResourceByField.js"
 
 const auth = (db) => {
   const getUserByField = getResourceByField(db, "users")
-  const getUserBySessionToken = getUserByField("sessionToken")
+  const getUserById = getUserByField("id")
 
   return (req, res, next) => {
     const { authorization } = req.headers
@@ -13,17 +15,33 @@ const auth = (db) => {
       return
     }
 
-    const user = getUserBySessionToken(authorization)
+    try {
+      const { payload } = jsonwebtoken.verify(
+        authorization,
+        config.security.jwt.secret
+      )
+      const user = getUserById(payload.userId)
 
-    if (!user) {
-      res.status(403).send({ error: "Forbidden (invalid token)" })
+      if (!user) {
+        res.status(403).send({ error: "Forbidden" })
 
-      return
+        return
+      }
+
+      req.user = user
+
+      next()
+    } catch (err) {
+      if (err instanceof jsonwebtoken.JsonWebTokenError) {
+        res.status(403).send({ error: "Forbidden" })
+
+        return
+      }
+
+      console.error(err)
+
+      res.status(500).send({ error: "Oops. Something wrong." })
     }
-
-    req.user = user
-
-    next()
   }
 }
 
