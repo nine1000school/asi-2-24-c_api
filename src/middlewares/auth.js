@@ -10,7 +10,7 @@ const auth = (db) => {
     const { authorization } = req.headers
 
     if (!authorization) {
-      res.status(403).send({ error: "Forbidden (no session token)" })
+      res.status(403).send({ error: "Forbidden" })
 
       return
     }

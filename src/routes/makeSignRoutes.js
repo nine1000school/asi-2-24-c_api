@@ -1,16 +1,14 @@
 import jsonwebtoken from "jsonwebtoken"
 import config from "../config.js"
-import createResource from "../utils/createResource.js"
+import UserModel from "../db/models/UserModel.js"
 import hashPassword from "../utils/hashPassword.js"
 
-const makeSignRoutes = ({ app, db }) => {
-  const createUser = createResource(db, "users")
-
+const makeSignRoutes = ({ app }) => {
   app.post("/sign-up", async (req, res) => {
     const { email, password } = req.body
     const passwordHash = hashPassword(password)
 
-    await createUser({ email, passwordHash })
+    await UserModel.create({ email, passwordHash })
 
     res.send({ result: true })
   })
@@ -18,9 +16,7 @@ const makeSignRoutes = ({ app, db }) => {
   app.post("/sign-in", async (req, res) => {
     const { email, password } = req.body
     const passwordHash = hashPassword(password)
-    const user = Object.values(db.data.users).find(
-      (user) => user.email === email
-    )
+    const user = await UserModel.findOne({ email })
 
     if (!user || user.passwordHash !== passwordHash) {
       res.status(401).send({ error: "Invalid credentials" })

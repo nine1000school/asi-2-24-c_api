@@ -39,7 +39,7 @@ const makePostsRoutes = ({ app, db }) => {
   })
 
   // UPDATE patch
-  app.patch("/posts/:postId", async (req, res) => {
+  app.patch("/posts/:postId", auth(db), async (req, res) => {
     const { postId } = req.params
     const { title, content, author } = req.body
     const updatedPost = await updatePostById(
@@ -56,7 +56,7 @@ const makePostsRoutes = ({ app, db }) => {
   })
 
   // DELETE
-  app.delete("/posts/:postId", async (req, res) => {
+  app.delete("/posts/:postId", auth(db), async (req, res) => {
     const { postId } = req.params
     const post = getPostById(postId, res)
 
