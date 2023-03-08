@@ -57,12 +57,6 @@ const makePostsRoutes = ({ app }) => {
     }
   })
 
-  const obj = {
-    x: 123,
-  }
-
-  obj.o = obj
-
   // UPDATE patch
   app.patch("/posts/:postId", auth, async (req, res) => {
     const {
@@ -103,10 +97,16 @@ const makePostsRoutes = ({ app }) => {
 
   // DELETE
   app.delete("/posts/:postId", auth, async (req, res) => {
-    const { postId } = req.params
+    const {
+      params: { postId },
+      user,
+    } = req
 
     try {
-      const post = await PostModel.findOne({ _id: postId })
+      const post = await PostModel.findOne({
+        _id: postId,
+        "user.id": user._id,
+      })
 
       if (!post) {
         res.status(404).send({ error: "Not found" })

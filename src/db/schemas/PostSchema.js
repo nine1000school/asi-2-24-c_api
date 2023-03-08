@@ -1,4 +1,6 @@
 import { Schema } from "mongoose"
+import CommentSchema from "./CommentSchema.js"
+import UserDataSchema from "./UserDataSchema.js"
 
 const PostSchema = new Schema(
   {
@@ -10,25 +12,12 @@ const PostSchema = new Schema(
       type: String,
       required: true,
     },
-    publishedAt: {
-      type: Date,
-    },
+    publishedAt: Date,
     user: {
-      type: new Schema(
-        {
-          id: {
-            type: String,
-            required: true,
-          },
-          name: {
-            type: String,
-            required: true,
-          },
-        },
-        { _id: false }
-      ),
+      type: UserDataSchema,
       required: true,
     },
+    comments: [CommentSchema],
   },
   { timestamps: true }
 )

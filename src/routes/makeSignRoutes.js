@@ -5,10 +5,10 @@ import hashPassword from "../utils/hashPassword.js"
 
 const makeSignRoutes = ({ app }) => {
   app.post("/sign-up", async (req, res) => {
-    const { email, password } = req.body
+    const { email, password, name } = req.body
     const passwordHash = hashPassword(password)
 
-    await UserModel.create({ email, passwordHash })
+    await UserModel.create({ email, passwordHash, name })
 
     res.send({ result: true })
   })
